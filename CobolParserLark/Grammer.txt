@@ -1,0 +1,28 @@
+cobol-source-program	=	( "IDENTIFICATION" | "ID" ) "DIVISION" "." program-id-cobol-source-program
+                            [ procedure-division ]
+                            [ { nested-cobol-source-program }* "." ]
+
+program-id-cobol-source-program	=	"PROGRAM-ID" [ "." ] program-name [ "." ]
+
+procedure-division	=	"PROCEDURE" "DIVISION" "."
+                        [ { paragraphs } "." ]
+
+paragraphs	=	{ sentence }* { paragraph }*
+
+paragraph	=	paragraph-name "." { sentence }*
+
+paragraph-name	=	user-defined-word
+
+sentence	=	statement-list "."
+
+statement-list	=	{ statement }+
+
+statement = display-statement
+
+display-statement	=	"DISPLAY" { ( literal ) }
+
+literal = [\+\-]? ([0-9]* [\.] [0-9]+ | [0-9]+)
+
+user-defined-word = cobol-word
+
+cobol-word = [A-Za-z0-9]+ ([\-]+ [A-Za-z0-9]+)*
