@@ -3,8 +3,8 @@ from sly import Lexer
 
 class CobLexer(Lexer):
 
-    tokens = {COBOL_WORD, ALPHA_USER_DEFINED_WORDS, INTEGER, LEVEL_NUMBER,
-              DISPLAY, STOP, RUN, TEXT, ASSIGN, PLUS, MINUS, TIMES, DIVIDE, DOT}
+    tokens = {ID, INTEGER, LEVEL_NUMBER, 'ID DIVISION', 'PROGRAM-ID', SECTION, PIC, PICTURE,
+              DISPLAY, STOP, RUN, TEXT, ASSIGN, PLUS, MINUS, TIMES, DIVIDE, DOT, COMPUTE}
 
     # Literal characters to operator precedence override
     literals = {'(', ')','.',"'",'"'}
@@ -21,9 +21,43 @@ class CobLexer(Lexer):
     TIMES = r'\*'
     DIVIDE = r'/'
     DOT = r'\.'
-
-
     TEXT = r'~("\n" | "\r")'
+
+
+    '''
+     A COBOL word is a character-string of not more than 30 characters which
+     forms a user-defined word, a system-name, or a reserved word. Except for
+     arithmetic operators and relation characters, each character of a   COBOL
+     word is selected from the set of letters, digits, and the hyphen; the hyphen 
+     cannot appear as the first or last character in such words. Each lowercase 
+     letter is considered to be equivalent to its corresponding uppercase letter.
+     '''
+
+    ID = r'[A-Za-z0-9]+([\-]+[A-Za-z0-9]+)*'
+    # Identifiers and keywords
+    ID['ID DIVISION'] = 'ID DIVISION'
+    ID['DISPLAY'] = DISPLAY
+    ID['STOP'] = STOP
+    ID['RUN'] = RUN
+    ID['COMPUTE'] = COMPUTE
+    ID['PROGRAM-ID'] = 'PROGRAM-ID'
+    ID['SECTION'] = SECTION
+    ID['PIC'] = PIC
+    ID['PICTURE'] = PICTURE
+
+
+    #
+    # '''
+    # level-numbers: 01-49, 66, 77, 88
+    # Each word must be a 1-digit or 2-digit integer
+    # '''
+    #
+    # LEVEL_NUMBER = r'([0]?[1-9]|[1-4][0-9]|"66"|"77"|"88")'
+    # ID[LEVEL_NUMBER] = LEVEL
+
+
+    # User defined words
+    # ALPHA_USER_DEFINED_WORDS = r'([0-9]+[\-]*)*[0-9]*[A-Za-z][A-Za-z0-9]*([\-]+[A-Za-z0-9]+)*'
 
     '''
     The word integer appearing in a format represents a numeric literal of nonzero 
@@ -39,30 +73,7 @@ class CobLexer(Lexer):
     def INTEGER(self, t):
         t.value = int(t.value)
         return t
-    '''
-    level-numbers: 01-49, 66, 77, 88
-    Each word must be a 1-digit or 2-digit integer
-    '''
 
-    LEVEL_NUMBER = r'([0]?[1-9]|[1-4][0-9]|"66"|"77"|"88")'
-
-    '''
-     A COBOL word is a character-string of not more than 30 characters which
-     forms a user-defined word, a system-name, or a reserved word. Except for
-     arithmetic operators and relation characters, each character of a   COBOL
-     word is selected from the set of letters, digits, and the hyphen; the hyphen 
-     cannot appear as the first or last character in such words. Each lowercase 
-     letter is considered to be equivalent to its corresponding uppercase letter.
-     '''
-
-    COBOL_WORD = r'[A-Za-z0-9]+([\-]+[A-Za-z0-9]+)*'
-    # Identifiers and keywords
-    COBOL_WORD['DISPLAY', 'display'] = DISPLAY
-    COBOL_WORD['STOP', 'stop'] = STOP
-    COBOL_WORD['RUN', 'run'] = RUN
-
-    # User defined words
-    ALPHA_USER_DEFINED_WORDS = r'([0-9]+[\-]*)*[0-9]*[A-Za-z][A-Za-z0-9]*([\-]+[A-Za-z0-9]+)*'
 
     @_(r'\n+')
     def ignore_newline(self, t):
@@ -75,7 +86,7 @@ class CobLexer(Lexer):
 
 if __name__ == '__main__':
     data = '''
-       ID-DIVISION. 
+       ID DIVISION. 
        PROGRAM-ID. TEST01.
        DATA DIVISION.
        WORKING-STORAGE SECTION.
